@@ -21,10 +21,10 @@
         }, o || {});
 
         //get scrollbar size             
-        var dummy = $('<div>').css({ visibility: 'hidden', width: '50px', height:'50px', overflow: 'scroll' }).appendTo('body');
+        var dummy = $('<div>').css({ visibility: 'hidden', width: '50px', height: '50px', overflow: 'scroll' }).appendTo('body');
         var scrollbarpx = 50 - $('<div>').height(99).appendTo(dummy).outerWidth();
         dummy.remove();
-
+       
         //IE8 browser test (because it's bad)
         var rv = -1;
         var ua = navigator.userAgent;
@@ -42,12 +42,6 @@
             var divHeight = parseInt(o.height ? o.height : parent.height());
 
 
-            //bypass if table size smaller than given dimesions
-            if (self.width() <= divWidth && self.height() <= divHeight)
-                return;
-
-            var width = self.width();
-            self.width(width); //reinforce table width so it doesn't change dynamically 
 
             //Create outer div
             var outerdiv = $(document.createElement('div'));
@@ -71,7 +65,7 @@
 
             var headBgColor = null;
             //Set header/footer column widths and click events
-            self.find('thead').find('th').each(function(index, value) {
+            self.find('thead').find('th').each(function (index, value) {
                 var val = $(value);
                 var tdwidth = val.width();
                 if (headBgColor == null) {
@@ -84,7 +78,7 @@
                     headBgColor = "#fff";
 
                 val.css("width", tdwidth + 'px'); //reinforce width
-                $(cloneTable.find('th')[index]).click(function() { val.click(); });
+                $(cloneTable.find('th')[index]).click(function () { val.click(); });
                 $(cloneTable.find('th')[index]).width(tdwidth);
                 $(cloneFoot.find('th')[index]).click(function () { val.click(); });
                 $(cloneFoot.find('td')[index]).width(tdwidth);
@@ -135,19 +129,16 @@
             if (ie8)
                 self.find('thead').hide();
 
-            //Add reactive resizing
+            //Add reactive resizing  
             if (o.reactive) {
                 $(window).resize(function () {
-                    if (prevParentWidth != parent.width()) {
                         var newWidth = parent.width();
-                        if (o.width && newWidth > o.width)
-                            return;
-                        outerdiv.css({ 'overflow': 'hidden' }).width(newWidth).height(divHeight);
+                        var newHeight = parent.height();
+                        outerdiv.css({ 'overflow': 'hidden' }).width(newWidth).height(newHeight);
                         headerdiv.css({ 'overflow': 'hidden', 'position': 'relative' }).width(newWidth - scrollbarpx);
-                        bodydiv.css({ 'overflow': 'auto', 'margin-top': marginTop + 'px', 'margin-bottom': marginBottom + 'px' }).width(newWidth).height(divHeight - scrollbarpx);
+                        bodydiv.css({ 'overflow': 'auto', 'margin-top': marginTop + 'px', 'margin-bottom': marginBottom + 'px' }).width(newWidth).height(newHeight - scrollbarpx);
                         footerdiv.css({ 'overflow': 'hidden', 'position': 'relative', 'background-color': headBgColor }).width(newWidth - scrollbarpx);
                         prevParentWidth = newWidth;
-                    }
                 });
             }
 
@@ -156,22 +147,22 @@
 })(jQuery);
 
 
-(function($) {
+(function ($) {
     // Get this browser's take on no fill
     // Must be appended else Chrome etc return 'initial'
     var $temp = $('<div style="background:none;display:none;"/>').appendTo('body');
     var transparent = $temp.css('backgroundColor');
     $temp.remove();
 
-    jQuery.fn.bkgcolor = function( fallback ) {
-        function test( $elem ) {
-            if ( $elem.css('backgroundColor') == transparent ) {
-                return !$elem.is('body') ? test( $elem.parent() ) : fallback || transparent ;
+    jQuery.fn.bkgcolor = function (fallback) {
+        function test($elem) {
+            if ($elem.css('backgroundColor') == transparent) {
+                return !$elem.is('body') ? test($elem.parent()) : fallback || transparent;
             } else {
                 return $elem.css('backgroundColor');
             }
         }
-        return test( $(this) );
+        return test($(this));
     };
 
 })(jQuery);
