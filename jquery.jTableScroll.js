@@ -34,13 +34,12 @@
         }
         var ie8 = (rv == 4);
 
-        this.each(function () {
-            var self = $(this);
+        var self = $(this);
+        var scrollPresent = false;
             var parent = self.parent();
             var prevParentWidth = parent.width();
             var divWidth = parseInt(o.width ? o.width : parent.width());
             var divHeight = parseInt(o.height ? o.height : parent.height());
-
 
 
             //Create outer div
@@ -112,9 +111,10 @@
 
             //Adjust header and footer div width if vertical scrollbar present
             var combinedHeight = self.height() + headerdiv.height() + footerdiv.height();
-            if (combinedHeight >= divHeight) {
+            if (combinedHeight >= divHeight && !scrollPresent) {
                 headerdiv.width(headerdiv.width() - scrollbarpx);
                 footerdiv.width(footerdiv.width() - scrollbarpx);
+                scrollPresent = true;
             }
 
             //Set body height after other content added to parent
@@ -128,21 +128,44 @@
 
             if (ie8)
                 self.find('thead').hide();
-
-            //Add reactive resizing  
+            
             if (o.reactive) {
                 $(window).resize(function () {
-                        var newWidth = parent.width();
-                        var newHeight = parent.height();
-                        outerdiv.css({ 'overflow': 'hidden' }).width(newWidth).height(newHeight);
-                        headerdiv.css({ 'overflow': 'hidden', 'position': 'relative' }).width(newWidth - scrollbarpx);
-                        bodydiv.css({ 'overflow': 'auto', 'margin-top': marginTop + 'px', 'margin-bottom': marginBottom + 'px' }).width(newWidth).height(newHeight - scrollbarpx);
-                        footerdiv.css({ 'overflow': 'hidden', 'position': 'relative', 'background-color': headBgColor }).width(newWidth - scrollbarpx);
-                        prevParentWidth = newWidth;
+                    var newWidth = parent.width();
+                    
+                    var newHeight = parent.height();
+                    
+                    outerdiv.css({ 'overflow': 'hidden' }).width(newWidth).height(newHeight);
+                    
+                    if (self.height() < newHeight) headerdiv.css({ 'overflow': 'hidden', 'position': 'relative' }).width(newWidth);
+                    else headerdiv.css({ 'overflow': 'hidden', 'position': 'relative' }).width(newWidth - scrollbarpx);
+                        
+                    bodydiv.css({ 'overflow': 'auto', 'margin-top': marginTop + 'px', 'margin-bottom': marginBottom + 'px' }).width(newWidth).height(newHeight - scrollbarpx);
+
+                    if (self.height() < newHeight) footerdiv.css({ 'overflow': 'hidden', 'position': 'relative', 'background-color': headBgColor }).width(newWidth);
+                    else footerdiv.css({ 'overflow': 'hidden', 'position': 'relative', 'background-color': headBgColor }).width(newWidth - scrollbarpx);
+                    
                 });
             }
+            
+     
 
-        });
+            this.afterRender = function () {
+                var combinedHeight1 = self.height() + headerdiv.height() + footerdiv.height();
+                if (combinedHeight1 >= divHeight && !scrollPresent) {
+                    headerdiv.width(headerdiv.width() - scrollbarpx);
+                    footerdiv.width(footerdiv.width() - scrollbarpx);
+                    scrollPresent = true;
+                }
+                
+                if (combinedHeight1 < divHeight && scrollPresent) {
+                    headerdiv.width(headerdiv.width() + scrollbarpx);
+                    footerdiv.width(footerdiv.width() + scrollbarpx);
+                    scrollPresent = false;
+                }
+            };
+
+        return this;
     };
 })(jQuery);
 
